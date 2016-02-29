@@ -1,0 +1,76 @@
+{
+  "maps" : [
+    {
+      "id" : "initFileReceivingMm",
+      "path" : [
+        {
+          "target" : "fileReceiver",
+          "handler" : "initReceiving"
+        },
+        {
+          "target" : "fileReceiver",
+          "handler" : "calcPartsQuantity"
+        },
+        {
+          "target" : "fileReceiver",
+          "handler" : "prepareForStorage"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "insert-documents"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
+    },
+    {
+      "id" : "filePartReceivingMm",
+      "path" : [
+        {
+          "target" : "fileReceiver",
+          "handler" : "getFileInfo"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
+        },
+        {
+          "target" : "fileReceiver",
+          "handler" : "addPart"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "update-documents"
+        },
+        {
+          "target" : "fileReceiver",
+          "handler" : "finishPartAdding"
+        }
+      ]
+    }
+  ],
+  "actors": [
+    {
+      "id": "info.smart_tools.smartactors.core.actors.db_accessor.DatabaseAccessActor",
+      "name": "databaseActor",
+      "parameters": {
+        "url" : "jdbc:postgresql://localhost:5432/local_actors",
+        "username" : "postgres",
+        "password" : "postgres"
+      }
+    },
+    {
+      "id": "storage.FileReceiver",
+      "name": "fileReceiver",
+      "parameters": {
+        "fileInfoCollectionName" : "fileInfo",
+        "filePartSize" : 10000
+      }
+    }
+  ],
+  "validationRules" : [
+  ],
+  "transformationRules": [
+  ]
+}
