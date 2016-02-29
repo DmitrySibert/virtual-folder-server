@@ -78,7 +78,6 @@ crashlytics-build.properties
 *.orig
 
 # Configuration files
-configuration.json
 backup.json
 src/main/resources/application.json
 
