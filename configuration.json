@@ -46,6 +46,9 @@
         {
           "target" : "fileReceiver",
           "handler" : "finishPartAdding"
+        },
+        {
+          "target" : "exchanging"
         }
       ]
     }
@@ -55,9 +58,9 @@
       "id": "info.smart_tools.smartactors.core.actors.db_accessor.DatabaseAccessActor",
       "name": "databaseActor",
       "parameters": {
-        "url" : "jdbc:postgresql://localhost:5432/local_actors",
-        "username" : "postgres",
-        "password" : "postgres"
+        "url" : "jdbc:postgresql://localhost:5432/local_virtual_storage",
+        "username" : "virtual_storage_user",
+        "password" : "vs_user"
       }
     },
     {
@@ -65,7 +68,7 @@
       "name": "fileReceiver",
       "parameters": {
         "fileInfoCollectionName" : "fileInfo",
-        "filePartSize" : 10000
+        "filePartSize" : 2000
       }
     }
   ],

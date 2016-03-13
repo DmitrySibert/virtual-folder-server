@@ -1,12 +1,10 @@
 package storage;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import info.smart_tools.smartactors.core.*;
 import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
 import info.smart_tools.smartactors.core.impl.SMObject;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +25,7 @@ public class FileReceiver extends Actor {
 
     /** Данные для кусочной загрузки файла */
     private Field<Integer> filePartSizeF;
-    private Field<Integer> filePartsQuantityF;
+    private Field<Integer> partsQuantityF;
     private Field<Integer> fileSizeF;
     private Field<Integer> partSizeF;
     private Field<Integer> partNumberF;
@@ -52,7 +50,7 @@ public class FileReceiver extends Actor {
         collectionNameF = new Field<>(new FieldName("collectionName"));
         documentsF = new ListField<>(new FieldName("documents"));
         filePartSizeF = new Field<>(new FieldName("filePartSize"));
-        filePartsQuantityF = new Field<>(new FieldName("filePartsQuantity"));
+        partsQuantityF = new Field<>(new FieldName("partsQuantity"));
         partSizeF = new Field<>(new FieldName("partSize"));
         fileSizeF = new Field<>(new FieldName("fileSize"));
         partNumberF = new Field<>(new FieldName("partNumber"));
@@ -90,10 +88,10 @@ public class FileReceiver extends Actor {
     public void calcPartsQuantity(IMessage msg) throws ReadValueException, ChangeValueException {
 
         Integer fileSize = fileSizeF.from(msg, Integer.class);
-        Integer parts = fileSize % filePartSize == 0 ? fileSize / filePartSize : fileSize % filePartSize + 1;
-        filePartsQuantityF.inject(msg, parts);
+        Integer parts = fileSize % filePartSize == 0 ? fileSize / filePartSize : fileSize / filePartSize + 1;
+        partsQuantityF.inject(msg, parts);
         respondOn(msg, response -> {
-            filePartsQuantityF.inject(response, parts);
+            partsQuantityF.inject(response, parts);
             partSizeF.inject(response, filePartSize);
         });
     }
@@ -103,8 +101,8 @@ public class FileReceiver extends Actor {
 
         IObject fileInfo = new SMObject();
         fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
-        serverGuidF.inject(fileInfo, fileIdF.from(msg, String.class));
-        filePartsQuantityF.inject(fileInfo, filePartsQuantityF.from(msg, Integer.class));
+        serverGuidF.inject(fileInfo, serverGuidF.from(msg, String.class));
+        partsQuantityF.inject(fileInfo, partsQuantityF.from(msg, Integer.class));
         partsNumbersF.inject(fileInfo, new LinkedList<>());
         filePartsF.inject(fileInfo, new LinkedList<>());
 
@@ -119,7 +117,7 @@ public class FileReceiver extends Actor {
 
         collectionNameF.inject(msg, fileInfoCollectionName);
         pageSizeF.inject(msg, 100);
-        pageNumberF.inject(msg, 2);
+        pageNumberF.inject(msg, 1);
         IObject query = new SMObject();
         IObject condition = new SMObject();
         condition.setValue(new FieldName("$eq"), serverGuidF.from(msg, String.class));
@@ -131,8 +129,12 @@ public class FileReceiver extends Actor {
     public void addPart(IMessage msg) throws ChangeValueException, ReadValueException {
 
         IObject fileInfo = searchResultF.from(msg, IObject.class).get(0);
-        partsNumbersF.from(fileInfo, Integer.class).add(partNumberF.from(msg, Integer.class));
-        filePartsF.from(fileInfo, String.class).add(filePartF.from(msg, String.class));
+        List<Integer> partsNumbers = partsNumbersF.from(fileInfo, Integer.class);
+        partsNumbers.add(partNumberF.from(msg, Integer.class));
+        partsNumbersF.inject(fileInfo, partsNumbers);
+        List<String> fileParts = filePartsF.from(fileInfo, String.class);
+        fileParts.add(filePartF.from(msg, String.class));
+        filePartsF.inject(fileInfo,fileParts);
         collectionNameF.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
