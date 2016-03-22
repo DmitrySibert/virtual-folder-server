@@ -51,6 +51,26 @@
           "target" : "exchanging"
         }
       ]
+    },
+    {
+      "id" : "folderContent",
+      "path" : [
+        {
+          "target" : "contentActor",
+          "handler" : "formFldrContentQuery"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
+        },
+        {
+          "target" : "contentActor",
+          "handler" : "sendFldrContent"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
     }
   ],
   "actors": [
@@ -69,6 +89,13 @@
       "parameters": {
         "fileInfoCollectionName" : "fileInfo",
         "filePartSize" : 2000
+      }
+    },
+    {
+      "id": "storage.ContentActor",
+      "name": "contentActor",
+      "parameters": {
+        "fileInfoCollectionName" : "fileInfo"
       }
     }
   ],

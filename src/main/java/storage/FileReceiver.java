@@ -15,14 +15,15 @@ import java.util.UUID;
 public class FileReceiver extends Actor {
 
     /** Данные о файле */
-    private Field<String> uuidF;
     private Field<String> serverGuidF;
     private Field<String> fileIdF;
+    private Field<String> originalNameF;
+    private Field<String> logicPathF;
+    private Field<Boolean> activeF;
     /** Данные для хранения */
     private String fileInfoCollectionName;
     private Field<String> collectionNameF;
     private ListField<IObject> documentsF;
-
     /** Данные для кусочной загрузки файла */
     private Field<Integer> filePartSizeF;
     private Field<Integer> partsQuantityF;
@@ -44,9 +45,11 @@ public class FileReceiver extends Actor {
 
     public FileReceiver(IObject params) {
 
-        uuidF = new Field<>(new FieldName("uuid"));
         serverGuidF = new Field<>(new FieldName("serverGuid"));
         fileIdF = new Field<>(new FieldName("fileId"));
+        originalNameF = new Field<>(new FieldName("originalName"));
+        logicPathF = new Field<>(new FieldName("logicPath"));
+        activeF = new Field<>(new FieldName("active"));
         collectionNameF = new Field<>(new FieldName("collectionName"));
         documentsF = new ListField<>(new FieldName("documents"));
         filePartSizeF = new Field<>(new FieldName("filePartSize"));
@@ -99,12 +102,17 @@ public class FileReceiver extends Actor {
     @Handler("prepareForStorage")
     public void prepareForStorage(IMessage msg) throws ChangeValueException, ReadValueException {
 
+        String fileId = fileIdF.from(msg, String.class);
+        Integer lastSplitIndex = fileId.lastIndexOf("\\");
         IObject fileInfo = new SMObject();
+        originalNameF.inject(fileInfo, fileId.substring(lastSplitIndex + 1));
+        logicPathF.inject(fileInfo, fileId.substring(0, lastSplitIndex));
         fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
         serverGuidF.inject(fileInfo, serverGuidF.from(msg, String.class));
         partsQuantityF.inject(fileInfo, partsQuantityF.from(msg, Integer.class));
         partsNumbersF.inject(fileInfo, new LinkedList<>());
         filePartsF.inject(fileInfo, new LinkedList<>());
+        activeF.inject(fileInfo, Boolean.FALSE);
 
         collectionNameF.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
@@ -138,6 +146,9 @@ public class FileReceiver extends Actor {
         collectionNameF.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
+        if(partsQuantityF.from(fileInfo, Integer.class).equals(fileParts.size())) {
+            activeF.inject(fileInfo, Boolean.TRUE);
+        }
         documentsF.inject(msg, filesInfo);
     }
 
