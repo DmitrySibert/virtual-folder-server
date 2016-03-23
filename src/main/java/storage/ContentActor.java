@@ -51,7 +51,7 @@ public class ContentActor extends Actor {
     public void formFldrContentQuery(IMessage msg) throws ChangeValueException, ReadValueException {
 
         collectionNameF.inject(msg, fileInfoCollectionName);
-        pageSizeF.inject(msg, 1000);
+        pageSizeF.inject(msg, 1000000);
         pageNumberF.inject(msg, 1);
         IObject query = new SMObject();
         IObject condition = new SMObject();

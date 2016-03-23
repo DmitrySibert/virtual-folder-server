@@ -71,6 +71,46 @@
           "target" : "exchanging"
         }
       ]
+    },
+    {
+      "id" : "filesInfo",
+      "path" : [
+        {
+          "target" : "fileProvider",
+          "handler" : "filesSearchByGuid"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
+        },
+        {
+          "target" : "fileProvider",
+          "handler" : "sendFilesInfo"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
+    },
+    {
+      "id" : "getFilePart",
+      "path" : [
+        {
+          "target" : "fileProvider",
+          "handler" : "fileSearchByGuid"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
+        },
+        {
+          "target" : "fileProvider",
+          "handler" : "sendFilePart"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
     }
   ],
   "actors": [
@@ -89,6 +129,12 @@
       "parameters": {
         "fileInfoCollectionName" : "fileInfo",
         "filePartSize" : 2000
+      }
+    },
+    {
+      "id": "storage.FileProvider",
+      "name": "fileProvider",
+      "parameters": {
       }
     },
     {

@@ -3,6 +3,7 @@ package storage;
 import info.smart_tools.smartactors.core.*;
 import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
+import info.smart_tools.smartactors.core.actors.db_accessor.DBFields;
 import info.smart_tools.smartactors.core.impl.SMObject;
 
 import java.util.LinkedList;
@@ -22,8 +23,6 @@ public class FileReceiver extends Actor {
     private Field<Boolean> activeF;
     /** Данные для хранения */
     private String fileInfoCollectionName;
-    private Field<String> collectionNameF;
-    private ListField<IObject> documentsF;
     /** Данные для кусочной загрузки файла */
     private Field<Integer> filePartSizeF;
     private Field<Integer> partsQuantityF;
@@ -36,12 +35,6 @@ public class FileReceiver extends Actor {
     private Integer filePartSize;
     private Field<Boolean> statusF;
 
-    /** Формирование запросов в БД */
-    private Field<Integer> pageSizeF;
-    private Field<Integer> pageNumberF;
-    private Field<IObject> queryF;
-    private ListField<IObject> searchResultF;
-
 
     public FileReceiver(IObject params) {
 
@@ -50,8 +43,6 @@ public class FileReceiver extends Actor {
         originalNameF = new Field<>(new FieldName("originalName"));
         logicPathF = new Field<>(new FieldName("logicPath"));
         activeF = new Field<>(new FieldName("active"));
-        collectionNameF = new Field<>(new FieldName("collectionName"));
-        documentsF = new ListField<>(new FieldName("documents"));
         filePartSizeF = new Field<>(new FieldName("filePartSize"));
         partsQuantityF = new Field<>(new FieldName("partsQuantity"));
         partSizeF = new Field<>(new FieldName("partSize"));
@@ -59,10 +50,6 @@ public class FileReceiver extends Actor {
         partNumberF = new Field<>(new FieldName("partNumber"));
         partsNumbersF = new ListField<>(new FieldName("partsNumbers"));
         filePartsF = new ListField<>(new FieldName("fileParts"));
-        pageSizeF = new Field<>(new FieldName("pageSize"));
-        pageNumberF = new Field<>(new FieldName("pageNumber"));
-        queryF = new Field<>(new FieldName("query"));
-        searchResultF = new ListField<>(new FieldName("searchResult"));
         filePartF = new Field<>(new FieldName("filePart"));
         statusF = new Field<>(new FieldName("status"));
         try {
@@ -112,44 +99,44 @@ public class FileReceiver extends Actor {
         partsQuantityF.inject(fileInfo, partsQuantityF.from(msg, Integer.class));
         partsNumbersF.inject(fileInfo, new LinkedList<>());
         filePartsF.inject(fileInfo, new LinkedList<>());
+        filePartSizeF.inject(fileInfo, filePartSize);
         activeF.inject(fileInfo, Boolean.FALSE);
-
-        collectionNameF.inject(msg, fileInfoCollectionName);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
-        documentsF.inject(msg, filesInfo);
+        DBFields.DOCUMENTS_FIELD.inject(msg, filesInfo);
     }
 
     @Handler("getFileInfo")
     public void getFileInfo(IMessage msg) throws ChangeValueException, ReadValueException {
 
-        collectionNameF.inject(msg, fileInfoCollectionName);
-        pageSizeF.inject(msg, 100);
-        pageNumberF.inject(msg, 1);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
+        DBFields.PAGE_SIZE_FIELD.inject(msg, 100);
+        DBFields.PAGE_NUMBER_FIELD.inject(msg, 1);
         IObject query = new SMObject();
         IObject condition = new SMObject();
         condition.setValue(new FieldName("$eq"), serverGuidF.from(msg, String.class));
         query.setValue(new FieldName("serverGuid"), condition);
-        queryF.inject(msg, query);
+        DBFields.QUERY_FIELD.inject(msg, query);
     }
 
     @Handler("addPart")
     public void addPart(IMessage msg) throws ChangeValueException, ReadValueException {
 
-        IObject fileInfo = searchResultF.from(msg, IObject.class).get(0);
+        IObject fileInfo = DBFields.SEARCH_RESULT_FIELD.from(msg, IObject.class).get(0);
         List<Integer> partsNumbers = partsNumbersF.from(fileInfo, Integer.class);
         partsNumbers.add(partNumberF.from(msg, Integer.class));
         partsNumbersF.inject(fileInfo, partsNumbers);
         List<String> fileParts = filePartsF.from(fileInfo, String.class);
         fileParts.add(filePartF.from(msg, String.class));
         filePartsF.inject(fileInfo,fileParts);
-        collectionNameF.inject(msg, fileInfoCollectionName);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
         if(partsQuantityF.from(fileInfo, Integer.class).equals(fileParts.size())) {
             activeF.inject(fileInfo, Boolean.TRUE);
         }
-        documentsF.inject(msg, filesInfo);
+        DBFields.DOCUMENTS_FIELD.inject(msg, filesInfo);
     }
 
     @Handler("finishPartAdding")
