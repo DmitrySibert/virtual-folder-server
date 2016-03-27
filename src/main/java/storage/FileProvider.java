@@ -18,6 +18,7 @@ public class FileProvider extends Actor {
     private ListField<IObject> filesF;
     private Field<String> filePartF;
     private Field<Integer> partNumberF;
+    private ListField<String> inConditionF;
     private String fileInfoCollectionName;
 
     public FileProvider(IObject params) {
@@ -25,6 +26,7 @@ public class FileProvider extends Actor {
         filesF = new ListField<>(new FieldName("files"));
         filePartF = new Field<>(new FieldName("filePart"));
         partNumberF = new Field<>(new FieldName("partNumber"));
+        inConditionF = new ListField<>(new FieldName("$in"));
         try {
             fileInfoCollectionName = new Field<String>(new FieldName("fileInfoCollectionName")).from(params, String.class);
         } catch (ChangeValueException | ReadValueException e) {
@@ -34,22 +36,20 @@ public class FileProvider extends Actor {
         }
     }
 
-    @Handler("formFilesSearchQuery")
-    public void formFilesSearchQuery(IMessage msg) throws ReadValueException, ChangeValueException {
+    @Handler("filesSearchByGuid")
+    public void filesSearchByGuid(IMessage msg) throws ReadValueException, ChangeValueException {
 
         DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         DBFields.PAGE_SIZE_FIELD.inject(msg, 10000);
         DBFields.PAGE_NUMBER_FIELD.inject(msg, 1);
         IObject query = IOC.resolve(IObject.class);
-        List<IObject> orConditions = new LinkedList<>();
+        List<String> serverGuids = new LinkedList<>();
         for (IObject file : filesF.from(msg, IObject.class)) {
-            IObject condition = IOC.resolve(IObject.class);
-            DBFields.EQUALS_FIELD.inject(condition, FileInfoFields.SERVER_GUID.from(file, String.class));
-            IObject orCondition = IOC.resolve(IObject.class);
-            orCondition.setValue(new FieldName("serverGuid"), condition);
-            orConditions.add(orCondition);
+            serverGuids.add(FileInfoFields.SERVER_GUID.from(file, String.class));
         }
-        DBFields.OR_FIELD.inject(query, orConditions);
+        IObject inCondition = IOC.resolve(IObject.class);
+        inConditionF.inject(inCondition, serverGuids);
+        query.setValue(new FieldName("serverGuid"), inCondition);
         DBFields.QUERY_FIELD.inject(msg, query);
     }
 
@@ -93,9 +93,9 @@ public class FileProvider extends Actor {
         IObject fileInfo = DBFields.SEARCH_RESULT_FIELD.from(msg, IObject.class).get(0);
         List<Integer> partsNumbers = FileInfoFields.PARTS_NUMBERS.from(fileInfo, Integer.class);
         Integer trgIndex = null;
-        for(Integer number : partsNumbers) {
-            if(partNumberF.from(msg, Integer.class).equals(number)) {
-                trgIndex = number;
+        for(int i = 0; i < partsNumbers.size(); ++i) {
+            if(partNumberF.from(msg, Integer.class).equals(partsNumbers.get(i))) {
+                trgIndex = i;
                 break;
             }
         }

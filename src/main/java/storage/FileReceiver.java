@@ -5,6 +5,7 @@ import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
 import info.smart_tools.smartactors.core.actors.db_accessor.DBFields;
 import info.smart_tools.smartactors.core.impl.SMObject;
+import storage.util.FileInfoFields;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,11 +21,9 @@ public class FileReceiver extends Actor {
     private Field<String> fileIdF;
     private Field<String> originalNameF;
     private Field<String> logicPathF;
-    private Field<Boolean> activeF;
     /** Данные для хранения */
     private String fileInfoCollectionName;
     /** Данные для кусочной загрузки файла */
-    private Field<Integer> filePartSizeF;
     private Field<Integer> partsQuantityF;
     private Field<Integer> fileSizeF;
     private Field<Integer> partSizeF;
@@ -42,8 +41,6 @@ public class FileReceiver extends Actor {
         fileIdF = new Field<>(new FieldName("fileId"));
         originalNameF = new Field<>(new FieldName("originalName"));
         logicPathF = new Field<>(new FieldName("logicPath"));
-        activeF = new Field<>(new FieldName("active"));
-        filePartSizeF = new Field<>(new FieldName("filePartSize"));
         partsQuantityF = new Field<>(new FieldName("partsQuantity"));
         partSizeF = new Field<>(new FieldName("partSize"));
         fileSizeF = new Field<>(new FieldName("fileSize"));
@@ -53,7 +50,7 @@ public class FileReceiver extends Actor {
         filePartF = new Field<>(new FieldName("filePart"));
         statusF = new Field<>(new FieldName("status"));
         try {
-            filePartSize = filePartSizeF.from(params, Integer.class);
+            filePartSize = new Field<Integer>(new FieldName("filePartSize")).from(params, Integer.class);
             fileInfoCollectionName = new Field<String>(new FieldName("fileInfoCollectionName")).from(params, String.class);
         } catch (ChangeValueException | ReadValueException e) {
             String err = "An error occurred while instancing class";
@@ -99,8 +96,9 @@ public class FileReceiver extends Actor {
         partsQuantityF.inject(fileInfo, partsQuantityF.from(msg, Integer.class));
         partsNumbersF.inject(fileInfo, new LinkedList<>());
         filePartsF.inject(fileInfo, new LinkedList<>());
-        filePartSizeF.inject(fileInfo, filePartSize);
-        activeF.inject(fileInfo, Boolean.FALSE);
+        FileInfoFields.PART_SIZE.inject(fileInfo, filePartSize);
+        FileInfoFields.FILE_SIZE.inject(fileInfo, FileInfoFields.FILE_SIZE.from(msg, Integer.class));
+        FileInfoFields.ACTIVE.inject(fileInfo, Boolean.FALSE);
         DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
@@ -134,7 +132,7 @@ public class FileReceiver extends Actor {
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);
         if(partsQuantityF.from(fileInfo, Integer.class).equals(fileParts.size())) {
-            activeF.inject(fileInfo, Boolean.TRUE);
+            FileInfoFields.ACTIVE.inject(fileInfo, Boolean.TRUE);
         }
         DBFields.DOCUMENTS_FIELD.inject(msg, filesInfo);
     }

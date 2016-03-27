@@ -135,6 +135,7 @@
       "id": "storage.FileProvider",
       "name": "fileProvider",
       "parameters": {
+        "fileInfoCollectionName" : "fileInfo"
       }
     },
     {

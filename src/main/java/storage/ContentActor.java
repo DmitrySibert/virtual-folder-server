@@ -5,6 +5,7 @@ import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
 import info.smart_tools.smartactors.core.impl.SMObject;
 import info.smart_tools.smartactors.utils.ioc.IOC;
+import storage.util.FileInfoFields;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,9 +16,6 @@ public class ContentActor extends Actor {
 
     private Field<String> fldrPathF;
     private ListField<IObject> fldrContentF;
-    /** данные о файле */
-    private Field<String> serverGuidF;
-    private Field<String> originalNameF;
     /** Формирование запросов в БД */
     private String fileInfoCollectionName;
     private Field<String> collectionNameF;
@@ -30,8 +28,6 @@ public class ContentActor extends Actor {
 
         fldrPathF = new Field<>(new FieldName("folderPath"));
         fldrContentF = new ListField<>(new FieldName("folderContent"));
-        serverGuidF = new Field<>(new FieldName("serverGuid"));
-        originalNameF = new Field<>(new FieldName("originalName"));
         collectionNameF = new Field<>(new FieldName("collectionName"));
         pageSizeF = new Field<>(new FieldName("pageSize"));
         pageNumberF = new Field<>(new FieldName("pageNumber"));
@@ -66,10 +62,12 @@ public class ContentActor extends Actor {
         List<IObject> fldrContentForSend = new LinkedList<>();
         List<IObject> fldrContent = searchResultF.from(msg, IObject.class);
         for(IObject fileInfo : fldrContent) {
-            IObject file = IOC.resolve(IObject.class);
-            serverGuidF.inject(file, serverGuidF.from(fileInfo, String.class));
-            originalNameF.inject(file, originalNameF.from(fileInfo, String.class));
-            fldrContentForSend.add(file);
+            if(FileInfoFields.ACTIVE.from(fileInfo, Boolean.class)) {
+                IObject file = IOC.resolve(IObject.class);
+                FileInfoFields.SERVER_GUID.inject(file, FileInfoFields.SERVER_GUID.from(fileInfo, String.class));
+                FileInfoFields.ORIGINAL_NAME.inject(file, FileInfoFields.ORIGINAL_NAME.from(fileInfo, String.class));
+                fldrContentForSend.add(file);
+            }
         }
 
         respondOn(msg, response -> {
