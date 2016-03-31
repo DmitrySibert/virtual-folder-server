@@ -28,20 +28,28 @@
       "id" : "filePartReceivingMm",
       "path" : [
         {
-          "target" : "fileReceiver",
-          "handler" : "getFileInfo"
+          "target" : "filePartManager",
+          "handler" : "createPart"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "insert-documents"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "fileSearchByGuid"
         },
         {
           "target" : "databaseActor",
           "handler" : "find-documents"
         },
         {
-          "target" : "fileReceiver",
-          "handler" : "addPart"
+          "target" : "fileInfoManager",
+          "handler" : "handleSearching"
         },
         {
-          "target" : "databaseActor",
-          "handler" : "update-documents"
+          "target" : "fileReceiver",
+          "handler" : "checkComplete"
         },
         {
           "target" : "fileReceiver",
@@ -76,7 +84,7 @@
       "id" : "filesInfo",
       "path" : [
         {
-          "target" : "fileProvider",
+          "target" : "fileInfoManager",
           "handler" : "filesSearchByGuid"
         },
         {
@@ -96,8 +104,8 @@
       "id" : "getFilePart",
       "path" : [
         {
-          "target" : "fileProvider",
-          "handler" : "fileSearchByGuid"
+          "target" : "filePartManager",
+          "handler" : "partSearch"
         },
         {
           "target" : "databaseActor",
@@ -109,6 +117,19 @@
         },
         {
           "target" : "exchanging"
+        }
+      ]
+    },
+    {
+      "id" : "updateFileInfo",
+      "path" : [
+        {
+          "target" : "fileInfoManager",
+          "handler" : "prepareForDb"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "update-documents"
         }
       ]
     }
@@ -128,14 +149,30 @@
       "name": "fileReceiver",
       "parameters": {
         "fileInfoCollectionName" : "fileInfo",
+        "updateFileInfoMm" : "updateFileInfo",
         "filePartSize" : 2000
+      }
+    },
+    {
+      "id": "storage.FileInfoManager",
+      "name": "fileInfoManager",
+      "parameters": {
+        "fileInfoCollectionName" : "fileInfo"
+      }
+    },
+    {
+      "id": "storage.FilePartManager",
+      "name": "filePartManager",
+      "parameters": {
+        "fileInfoCollectionName" : "fileParts"
       }
     },
     {
       "id": "storage.FileProvider",
       "name": "fileProvider",
       "parameters": {
-        "fileInfoCollectionName" : "fileInfo"
+        "fileInfoCollectionName" : "fileInfo",
+        "filePartsCollectionName" : "fileParts"
       }
     },
     {
