@@ -15,12 +15,12 @@ import java.util.List;
  */
 public class FilePartManager extends Actor {
 
-    private String filePartsCollectionName;
+    private String filePartCollectionName;
 
     public FilePartManager(IObject params) {
 
         try {
-            filePartsCollectionName = new Field<String>(new FieldName("filePartsCollectionName")).from(params, String.class);
+            filePartCollectionName = new Field<String>(new FieldName("filePartCollectionName")).from(params, String.class);
         } catch (ChangeValueException | ReadValueException e) {
             String err = "An error occurred while instancing class";
             System.out.println(err);
@@ -43,7 +43,7 @@ public class FilePartManager extends Actor {
         FileInfoFields.PART.inject(part, FileInfoFields.PART.from(msg, String.class));
         List<IObject> parts = new LinkedList<>();
         parts.add(part);
-        DBFields.COLLECTION_NAME_FIELD.inject(msg, filePartsCollectionName);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, filePartCollectionName);
         DBFields.DOCUMENTS_FIELD.inject(msg, parts);
     }
 
@@ -53,7 +53,7 @@ public class FilePartManager extends Actor {
         IObject guidCondition = IOC.resolve(IObject.class);
         DBFields.EQUALS_FIELD.inject(guidCondition, FileInfoFields.SERVER_GUID.from(msg, String.class));
         IObject numberCondition = IOC.resolve(IObject.class);
-        DBFields.EQUALS_FIELD.inject(guidCondition, FileInfoFields.PART_NUMBER.from(msg, Integer.class).toString());
+        numberCondition.setValue(new FieldName("$eq"), FileInfoFields.PART_NUMBER.from(msg, Integer.class));
 
         IObject andCondition = IOC.resolve(IObject.class);
         andCondition.setValue(new FieldName("serverGuid"), guidCondition);
@@ -62,7 +62,7 @@ public class FilePartManager extends Actor {
         IObject query = IOC.resolve(IObject.class);
         DBFields.AND_FIELD.inject(query, andCondition);
         DBFields.QUERY_FIELD.inject(msg, query);
-        DBFields.COLLECTION_NAME_FIELD.inject(msg, filePartsCollectionName);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, filePartCollectionName);
         DBFields.PAGE_SIZE_FIELD.inject(msg, 10);
         DBFields.PAGE_NUMBER_FIELD.inject(msg, 1);
     }

@@ -112,6 +112,10 @@
           "handler" : "find-documents"
         },
         {
+          "target" : "filePartManager",
+          "handler" : "handleSearching"
+        },
+        {
           "target" : "fileProvider",
           "handler" : "sendFilePart"
         },
@@ -164,15 +168,14 @@
       "id": "storage.FilePartManager",
       "name": "filePartManager",
       "parameters": {
-        "fileInfoCollectionName" : "fileParts"
+        "filePartCollectionName" : "filePart"
       }
     },
     {
       "id": "storage.FileProvider",
       "name": "fileProvider",
       "parameters": {
-        "fileInfoCollectionName" : "fileInfo",
-        "filePartsCollectionName" : "fileParts"
+        "fileInfoCollectionName" : "fileInfo"
       }
     },
     {
