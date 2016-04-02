@@ -11,46 +11,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ *  Отправки файлов клиентам
  */
 public class FileProvider extends Actor {
 
     private ListField<IObject> filesF;
     private Field<String> filePartF;
     private Field<Integer> partNumberF;
-    private ListField<String> inConditionF;
-    private String fileInfoCollectionName;
+
 
     public FileProvider(IObject params) {
 
         filesF = new ListField<>(new FieldName("files"));
         filePartF = new Field<>(new FieldName("filePart"));
         partNumberF = new Field<>(new FieldName("partNumber"));
-        inConditionF = new ListField<>(new FieldName("$in"));
-        try {
-            fileInfoCollectionName = new Field<String>(new FieldName("fileInfoCollectionName")).from(params, String.class);
-        } catch (ChangeValueException | ReadValueException e) {
-            String err = "An error occurred while instancing class";
-            System.out.println(err);
-            throw new RuntimeException(err);
-        }
-    }
-
-    @Handler("filesSearchByGuid")
-    public void filesSearchByGuid(IMessage msg) throws ReadValueException, ChangeValueException {
-
-        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
-        DBFields.PAGE_SIZE_FIELD.inject(msg, 10000);
-        DBFields.PAGE_NUMBER_FIELD.inject(msg, 1);
-        IObject query = IOC.resolve(IObject.class);
-        List<String> serverGuids = new LinkedList<>();
-        for (IObject file : filesF.from(msg, IObject.class)) {
-            serverGuids.add(FileInfoFields.SERVER_GUID.from(file, String.class));
-        }
-        IObject inCondition = IOC.resolve(IObject.class);
-        inConditionF.inject(inCondition, serverGuids);
-        query.setValue(new FieldName("serverGuid"), inCondition);
-        DBFields.QUERY_FIELD.inject(msg, query);
     }
 
     @Handler("sendFilesInfo")
@@ -74,36 +48,15 @@ public class FileProvider extends Actor {
         });
     }
 
-    @Handler("fileSearchByGuid")
-    public void fileSearchByGuid(IMessage msg) throws ChangeValueException, ReadValueException {
-
-        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
-        DBFields.PAGE_SIZE_FIELD.inject(msg, 10000);
-        DBFields.PAGE_NUMBER_FIELD.inject(msg, 1);
-        IObject query = IOC.resolve(IObject.class);
-        IObject condition = IOC.resolve(IObject.class);
-        DBFields.EQUALS_FIELD.inject(condition, FileInfoFields.SERVER_GUID.from(msg, String.class));
-        query.setValue(new FieldName("serverGuid"), condition);
-        DBFields.QUERY_FIELD.inject(msg, query);
-    }
-
     @Handler("sendFilePart")
     public void sendFilePart(IMessage msg) throws ReadValueException, ChangeValueException {
 
-        IObject fileInfo = DBFields.SEARCH_RESULT_FIELD.from(msg, IObject.class).get(0);
-        List<Integer> partsNumbers = FileInfoFields.PARTS_NUMBERS.from(fileInfo, Integer.class);
-        Integer trgIndex = null;
-        for(int i = 0; i < partsNumbers.size(); ++i) {
-            if(partNumberF.from(msg, Integer.class).equals(partsNumbers.get(i))) {
-                trgIndex = i;
-                break;
-            }
-        }
-        if (trgIndex == null) {
+        IObject partInfo = FileInfoFields.PART_INFO.from(msg, IObject.class);
+        if (partInfo == null) {
             //TODO: Фатальнейшая ошибка
             //TODO: respondOn с ошибкой или эксепшином
         } else {
-            String part = FileInfoFields.FILE_PARTS.from(fileInfo, String.class).get(trgIndex);
+            String part = FileInfoFields.PART.from(partInfo, String.class);
             respondOn(msg, response -> {
                 filePartF.inject(response, part);
             });
