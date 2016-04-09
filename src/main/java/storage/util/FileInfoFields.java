@@ -22,6 +22,5 @@ public class FileInfoFields {
     public static final Field<String> ORIGINAL_NAME = new Field<>(new FieldName("originalName"));
     public static final Field<String> PART = new Field<>(new FieldName("part"));
     public static final Field<Integer> PART_NUMBER = new Field<>(new FieldName("partNumber"));
-
-
+    public static final Field<Boolean> IS_FOLDER = new Field<>(new FieldName("isFolder"));
 }

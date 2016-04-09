@@ -76,12 +76,12 @@ public class FileReceiver extends Actor {
      * @throws ChangeValueException
      * @throws ReadValueException
      */
-    @Handler("prepareForStorage")
-    public void prepareForStorage(IMessage msg) throws ChangeValueException, ReadValueException {
+    @Handler("prepareFileForStorage")
+    public void prepareFileForStorage(IMessage msg) throws ChangeValueException, ReadValueException {
 
         String fileId = fileIdF.from(msg, String.class);
         Integer lastSplitIndex = fileId.lastIndexOf("\\");
-        IObject fileInfo = new SMObject();
+        IObject fileInfo = IOC.resolve(IObject.class);
         FileInfoFields.ORIGINAL_NAME.inject(fileInfo, fileId.substring(lastSplitIndex + 1));
         FileInfoFields.LOGIC_PATH.inject(fileInfo, fileId.substring(0, lastSplitIndex));
         fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
@@ -90,6 +90,30 @@ public class FileReceiver extends Actor {
         FileInfoFields.PART_SIZE.inject(fileInfo, filePartSize);
         FileInfoFields.FILE_SIZE.inject(fileInfo, FileInfoFields.FILE_SIZE.from(msg, Integer.class));
         FileInfoFields.ACTIVE.inject(fileInfo, Boolean.FALSE);
+        FileInfoFields.IS_FOLDER.inject(fileInfo, Boolean.FALSE);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
+        List<IObject> filesInfo = new LinkedList<>();
+        filesInfo.add(fileInfo);
+        DBFields.DOCUMENTS_FIELD.inject(msg, filesInfo);
+    }
+
+    /**
+     * Сформировать запись о новой директории для БД
+     * @throws ChangeValueException
+     * @throws ReadValueException
+     */
+    @Handler("prepareFolderForStorage")
+    public void prepareFolderForStorage(IMessage msg) throws ChangeValueException, ReadValueException {
+
+        String fileId = fileIdF.from(msg, String.class);
+        Integer lastSplitIndex = fileId.lastIndexOf("\\");
+        IObject fileInfo = IOC.resolve(IObject.class);
+        FileInfoFields.ORIGINAL_NAME.inject(fileInfo, fileId.substring(lastSplitIndex + 1));
+        FileInfoFields.LOGIC_PATH.inject(fileInfo, fileId.substring(0, lastSplitIndex));
+        fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
+        FileInfoFields.SERVER_GUID.inject(fileInfo, FileInfoFields.SERVER_GUID.from(msg, String.class));
+        FileInfoFields.ACTIVE.inject(fileInfo, Boolean.FALSE);
+        FileInfoFields.IS_FOLDER.inject(fileInfo, Boolean.TRUE);
         DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
         filesInfo.add(fileInfo);

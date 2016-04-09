@@ -1,7 +1,7 @@
 {
   "maps" : [
     {
-      "id" : "initFileReceivingMm",
+      "id" : "initFileReceiving",
       "path" : [
         {
           "target" : "fileReceiver",
@@ -13,7 +13,27 @@
         },
         {
           "target" : "fileReceiver",
-          "handler" : "prepareForStorage"
+          "handler" : "prepareFileForStorage"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "insert-documents"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
+    },
+    {
+      "id" : "folderReceiving",
+      "path" : [
+        {
+          "target" : "fileReceiver",
+          "handler" : "initReceiving"
+        },
+        {
+          "target" : "fileReceiver",
+          "handler" : "prepareFolderForStorage"
         },
         {
           "target" : "databaseActor",
