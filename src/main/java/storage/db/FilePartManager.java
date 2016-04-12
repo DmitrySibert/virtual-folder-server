@@ -1,10 +1,11 @@
-package storage;
+package storage.db;
 
 import info.smart_tools.smartactors.core.*;
 import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
 import info.smart_tools.smartactors.core.actors.db_accessor.DBFields;
 import info.smart_tools.smartactors.utils.ioc.IOC;
+import storage.util.DbFields;
 import storage.util.FileInfoFields;
 
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import java.util.List;
 public class FilePartManager extends Actor {
 
     private String filePartCollectionName;
+    private ListField<Integer> documentIdsF;
 
     public FilePartManager(IObject params) {
 
@@ -73,5 +75,15 @@ public class FilePartManager extends Actor {
         IObject partInfo = DBFields.SEARCH_RESULT_FIELD.from(msg, IObject.class).get(0);
         FileInfoFields.PART_INFO.inject(msg, partInfo);
         DBFields.SEARCH_RESULT_FIELD.delete(msg);
+    }
+
+    @Handler("delete")
+    public void delete(IMessage msg) throws ChangeValueException, ReadValueException {
+
+        IObject partInfo = FileInfoFields.PART_INFO.from(msg, IObject.class);
+        List<Integer> ids = new LinkedList<>();
+        ids.add(DbFields.ID.from(partInfo, Integer.class));
+        documentIdsF.inject(msg, ids);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, filePartCollectionName);
     }
 }

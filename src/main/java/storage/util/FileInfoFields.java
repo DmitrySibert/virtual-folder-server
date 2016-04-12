@@ -11,6 +11,7 @@ import info.smart_tools.smartactors.core.ListField;
 public class FileInfoFields {
 
     public static final Field<IObject> FILE_INFO = new Field<>(new FieldName("fileInfo"));
+    public static final ListField<IObject> FILES_INFO = new ListField<>(new FieldName("filesInfo"));
     public static final Field<IObject> PART_INFO = new Field<>(new FieldName("partInfo"));
     public static final Field<Integer> FILE_SIZE = new Field<>(new FieldName("fileSize"));
     public static final Field<Integer> PARTS_QUANTITY = new Field<>(new FieldName("partsQuantity"));

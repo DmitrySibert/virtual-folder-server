@@ -45,6 +45,124 @@
       ]
     },
     {
+      "id" : "deleteFiles",
+      "path" : [
+        {
+          "target" : "fileInfoManager",
+          "handler" : "fileSearchByGuids"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "handleSearchingMultiple"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "initFilesDeleting"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "successResponse"
+        },
+        {
+          "target" : "exchanging"
+        }
+      ]
+    },
+    {
+      "id" : "deleteFile",
+      "path" : [
+        {
+          "target" : "deleteActor",
+          "handler" : "deactivateFile"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "prepareForDb"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "update-documents"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "initPartsDeleting"
+        }
+      ]
+    },
+    {
+      "id" : "deletePart",
+      "path" : [
+
+        {
+          "target" : "deleteActor",
+          "handler" : "formPartSearchData"
+        },
+        {
+          "target" : "filePartManager",
+          "handler" : "partSearch"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
+        },
+        {
+          "target" : "filePartManager",
+          "handler" : "handleSearching"
+        },
+        {
+          "target" : "filePartManager",
+          "handler" : "delete"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "checkPartsOver"
+        }
+      ]
+    },
+    {
+      "id" : "finishFileDeleting",
+      "path" : [
+        {
+          "target" : "fileInfoManager",
+          "handler" : "fileSearchByGuids"
+        }
+      ]
+    },
+    {
+      "id" : "deleteFolder",
+      "path" : [
+
+        {
+          "target" : "deleteActor",
+          "handler" : "deactivateFile"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "prepareForDb"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "update-documents"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "setLogicPathFromFileInfo"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "searchByLogicPath"
+        },
+        {
+          "target" : "fileInfoManager",
+          "handler" : "handleSearchingMultiple"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "initFilesDeleting"
+        },
+      ]
+    },
+    {
       "id" : "filePartReceivingMm",
       "path" : [
         {
@@ -65,7 +183,7 @@
         },
         {
           "target" : "fileInfoManager",
-          "handler" : "handleSearching"
+          "handler" : "handleSearchingSingle"
         },
         {
           "target" : "fileReceiver",
@@ -84,8 +202,8 @@
       "id" : "folderContent",
       "path" : [
         {
-          "target" : "contentActor",
-          "handler" : "formFldrContentQuery"
+          "target" : "fileInfoManager",
+          "handler" : "searchByLogicPath"
         },
         {
           "target" : "databaseActor",
@@ -133,7 +251,7 @@
         },
         {
           "target" : "filePartManager",
-          "handler" : "handleSearching"
+          "handler" : "handleSearchingSingle"
         },
         {
           "target" : "fileProvider",
