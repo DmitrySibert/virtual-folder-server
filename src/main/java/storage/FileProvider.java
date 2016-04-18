@@ -40,6 +40,7 @@ public class FileProvider extends Actor {
             FileInfoFields.PARTS_QUANTITY.inject(file, FileInfoFields.PARTS_QUANTITY.from(fileInfo, Integer.class));
             FileInfoFields.PART_SIZE.inject(file, FileInfoFields.PART_SIZE.from(fileInfo, Integer.class));
             FileInfoFields.FILE_SIZE.inject(file, FileInfoFields.FILE_SIZE.from(fileInfo, Integer.class));
+            FileInfoFields.IS_FOLDER.inject(file, FileInfoFields.IS_FOLDER.from(fileInfo, Boolean.class));
             filesInfoForSend.add(file);
         }
 

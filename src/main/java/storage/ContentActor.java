@@ -33,6 +33,7 @@ public class ContentActor extends Actor {
                 IObject file = IOC.resolve(IObject.class);
                 FileInfoFields.SERVER_GUID.inject(file, FileInfoFields.SERVER_GUID.from(fileInfo, String.class));
                 FileInfoFields.ORIGINAL_NAME.inject(file, FileInfoFields.ORIGINAL_NAME.from(fileInfo, String.class));
+                FileInfoFields.IS_FOLDER.inject(file, FileInfoFields.IS_FOLDER.from(fileInfo, Boolean.class));
                 fldrContentForSend.add(file);
             }
         }

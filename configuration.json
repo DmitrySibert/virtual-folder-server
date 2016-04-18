@@ -159,7 +159,7 @@
         {
           "target" : "deleteActor",
           "handler" : "initFilesDeleting"
-        },
+        }
       ]
     },
     {
@@ -296,14 +296,14 @@
       }
     },
     {
-      "id": "storage.FileInfoManager",
+      "id": "storage.db.FileInfoManager",
       "name": "fileInfoManager",
       "parameters": {
         "fileInfoCollectionName" : "fileInfo"
       }
     },
     {
-      "id": "storage.FilePartManager",
+      "id": "storage.db.FilePartManager",
       "name": "filePartManager",
       "parameters": {
         "filePartCollectionName" : "filePart"

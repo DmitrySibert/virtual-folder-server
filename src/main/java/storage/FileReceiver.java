@@ -110,9 +110,9 @@ public class FileReceiver extends Actor {
         IObject fileInfo = IOC.resolve(IObject.class);
         FileInfoFields.ORIGINAL_NAME.inject(fileInfo, fileId.substring(lastSplitIndex + 1));
         FileInfoFields.LOGIC_PATH.inject(fileInfo, fileId.substring(0, lastSplitIndex));
-        fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
+        //fileIdF.inject(fileInfo, fileIdF.from(msg, String.class));
         FileInfoFields.SERVER_GUID.inject(fileInfo, FileInfoFields.SERVER_GUID.from(msg, String.class));
-        FileInfoFields.ACTIVE.inject(fileInfo, Boolean.FALSE);
+        FileInfoFields.ACTIVE.inject(fileInfo, Boolean.TRUE);
         FileInfoFields.IS_FOLDER.inject(fileInfo, Boolean.TRUE);
         DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
         List<IObject> filesInfo = new LinkedList<>();
