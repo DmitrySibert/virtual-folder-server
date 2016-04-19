@@ -49,7 +49,11 @@
       "path" : [
         {
           "target" : "fileInfoManager",
-          "handler" : "fileSearchByGuids"
+          "handler" : "searchByGuids"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
         },
         {
           "target" : "fileInfoManager",
@@ -114,6 +118,10 @@
           "handler" : "delete"
         },
         {
+          "target" : "databaseActor",
+          "handler" : "delete-documents"
+        },
+        {
           "target" : "deleteActor",
           "handler" : "checkPartsOver"
         }
@@ -133,16 +141,19 @@
       "path" : [
 
         {
-          "target" : "deleteActor",
-          "handler" : "deactivateFile"
-        },
-        {
           "target" : "fileInfoManager",
-          "handler" : "prepareForDb"
+          "handler" : "delete"
         },
         {
           "target" : "databaseActor",
-          "handler" : "update-documents"
+          "handler" : "delete-documents"
+        },
+        {
+          "target" : "deleteActor",
+          "handler" : "successResponse"
+        },
+        {
+          "target" : "exchanging"
         },
         {
           "target" : "deleteActor",
@@ -151,6 +162,10 @@
         {
           "target" : "fileInfoManager",
           "handler" : "searchByLogicPath"
+        },
+        {
+          "target" : "databaseActor",
+          "handler" : "find-documents"
         },
         {
           "target" : "fileInfoManager",
@@ -321,6 +336,16 @@
       "name": "contentActor",
       "parameters": {
         "fileInfoCollectionName" : "fileInfo"
+      }
+    },
+    {
+      "id": "storage.DeleteActor",
+      "name": "deleteActor",
+      "parameters": {
+        "deleteFileMm" : "deleteFile",
+        "deleteFolderMm" : "deleteFolder",
+        "deletePartMm" : "deletePart",
+        "finishFileDeletingMm" : "finishFileDeleting"
       }
     }
   ],

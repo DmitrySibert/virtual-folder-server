@@ -5,6 +5,7 @@ import info.smart_tools.smartactors.core.actors.Actor;
 import info.smart_tools.smartactors.core.actors.annotations.Handler;
 import info.smart_tools.smartactors.core.addressing.AddressingFields;
 import info.smart_tools.smartactors.core.addressing.IMessageMapId;
+import info.smart_tools.smartactors.core.addressing.MessageMapId;
 import info.smart_tools.smartactors.core.routers.MessageBus;
 import info.smart_tools.smartactors.utils.ioc.IOC;
 import storage.util.FileInfoFields;
@@ -23,6 +24,27 @@ public class DeleteActor extends Actor {
     private IMessageMapId finishFileDeletingMm;
 
     public DeleteActor(IObject params) {
+
+        statusF = new Field<>(new FieldName("status"));
+        curPartF = new Field<>(new FieldName("currentPart"));
+        try {
+            deleteFileMm = MessageMapId.fromString(
+                    new Field<String>(new FieldName("deleteFileMm")).from(params, String.class)
+            );
+            finishFileDeletingMm = MessageMapId.fromString(
+                    new Field<String>(new FieldName("finishFileDeletingMm")).from(params, String.class)
+            );
+            deleteFolderMm = MessageMapId.fromString(
+                    new Field<String>(new FieldName("deleteFolderMm")).from(params, String.class)
+            );
+            deletePartMm = MessageMapId.fromString(
+                    new Field<String>(new FieldName("deletePartMm")).from(params, String.class)
+            );
+        } catch (ReadValueException | ChangeValueException e) {
+            String errMsg = "An error occurred while constructing DeleteActor: " + e;
+            System.out.println(errMsg);
+            throw new RuntimeException(errMsg);
+        }
     }
 
     /**
@@ -85,7 +107,7 @@ public class DeleteActor extends Actor {
         if (curPartF.from(msg, Integer.class) > FileInfoFields.PARTS_QUANTITY.from(msg, Integer.class)) {
             IObject addrF = IOC.resolve(IObject.class);
             AddressingFields.MESSAGE_MAP_ID_FIELD.delete(msg);
-            AddressingFields.MESSAGE_MAP_ID_FIELD.inject(addrF, finishFileDeletingMm);
+            AddressingFields.MESSAGE_MAP_ID_FIELD.inject(addrF, finishFileDeletingMm); //окончательно удалить запись в этой карте сообщений
             AddressingFields.ADDRESS_FIELD.inject(msg, addrF);
         } else {
             IMessage delMsg = IOC.resolve(IMessage.class);

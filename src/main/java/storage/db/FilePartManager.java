@@ -21,6 +21,7 @@ public class FilePartManager extends Actor {
 
     public FilePartManager(IObject params) {
 
+        documentIdsF = new ListField<>(new FieldName("documentIds"));
         try {
             filePartCollectionName = new Field<String>(new FieldName("filePartCollectionName")).from(params, String.class);
         } catch (ChangeValueException | ReadValueException e) {

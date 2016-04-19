@@ -19,11 +19,13 @@ public class FileInfoManager extends Actor {
     private ListField<IObject> filesF;
     private ListField<String> inConditionF;
     private String fileInfoCollectionName;
+    private ListField<Integer> documentIdsF;
 
     public FileInfoManager(IObject params) {
 
         filesF = new ListField<>(new FieldName("files"));
         inConditionF = new ListField<>(new FieldName("$in"));
+        documentIdsF = new ListField<>(new FieldName("documentIds"));
         try {
             fileInfoCollectionName = new Field<String>(new FieldName("fileInfoCollectionName")).from(params, String.class);
         } catch (ChangeValueException | ReadValueException e) {
@@ -112,5 +114,15 @@ public class FileInfoManager extends Actor {
         List<IObject> documents = new LinkedList<>();
         documents.add(FileInfoFields.FILE_INFO.from(msg, IObject.class));
         DBFields.DOCUMENTS_FIELD.inject(msg, documents);
+    }
+
+    @Handler("delete")
+    public void delete(IMessage msg) throws ChangeValueException, ReadValueException {
+
+        IObject fileInfo = FileInfoFields.FILE_INFO.from(msg, IObject.class);
+        List<Integer> ids = new LinkedList<>();
+        ids.add(DbFields.ID.from(fileInfo, Integer.class));
+        documentIdsF.inject(msg, ids);
+        DBFields.COLLECTION_NAME_FIELD.inject(msg, fileInfoCollectionName);
     }
 }
